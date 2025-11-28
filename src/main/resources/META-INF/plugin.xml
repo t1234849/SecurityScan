@@ -22,7 +22,6 @@
     <ul>
         <li><strong>🔍 实时安全扫描</strong>：编码时后台自动检测，立即标记问题（黄色波浪线）</li>
         <li><strong>💡 详细安全提示</strong>：鼠标悬停显示风险说明、攻击示例、修复建议</li>
-        <li><strong>🛠️ 实用建议</strong>：推荐 Hutool 等国内常用工具库</li>
         <li><strong>✅ 符合国内标准</strong>：满足奇安信、等保测评等审计要求</li>
     </ul>
     
