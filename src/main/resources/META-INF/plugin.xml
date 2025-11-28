@@ -5,7 +5,7 @@
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
-    <name>Security Scan - 代码安全扫描助手</name>
+    <name>SecurityScan</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor email="1724188078@qq.com" url="https://www.securityscan.com">pengfei-t</vendor>
@@ -14,7 +14,8 @@
          Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
     <description><![CDATA[
-    <h2>代码安全扫描助手</h2>
+    <h2>Security Scan - Code Security Assistant</h2>
+    <p>A real-time code security scanner designed for Chinese security audit requirements (QAX, MLPS 2.0). Detects security vulnerabilities during coding and provides detailed fix suggestions.</p>
     <p>专为国内安全审计需求设计的 IDEA 插件，在编码阶段实时发现并提示安全隐患。</p>
     
     <h3>✨ 核心特性</h3>
