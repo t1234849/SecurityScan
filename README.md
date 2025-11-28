@@ -1,15 +1,15 @@
-# 代码安全扫描助手 - SecurityScan
+# SecureWatch - 代码安全监视器
 
 <div align="center">
 
 **🛡️ 专为国内安全审计需求设计的 IDEA 插件**
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![IntelliJ Platform](https://img.shields.io/badge/IntelliJ%20Platform-2023.2+-orange.svg)](https://www.jetbrains.com/idea/)
+[![IntelliJ Platform](https://img.shields.io/badge/IntelliJ%20Platform-2022.2+-orange.svg)](https://www.jetbrains.com/idea/)
 [![Java](https://img.shields.io/badge/Java-17+-green.svg)](https://www.oracle.com/java/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.22-purple.svg)](https://kotlinlang.org/)
 
-*在编码阶段实时发现并提示安全隐患*
+*实时监控代码安全，在编码阶段立即发现并提示安全隐患*
 
 [快速开始](#-快速开始) • [功能特性](#-功能特性) • [检测规则](#-检测规则) • [使用方法](#-使用方法) • [开发文档](#-开发文档)
 
@@ -19,7 +19,7 @@
 
 ## 📖 项目简介
 
-代码安全扫描助手是一个基于 IntelliJ IDEA 的代码安全检测插件，可以在**编写代码时实时检测**常见的安全漏洞，并提供**详细的安全提示和修复建议**。
+SecureWatch（代码安全监视器）是一个基于 IntelliJ IDEA 的代码安全检测插件，可以在**编写代码时实时监控**常见的安全漏洞，并提供**详细的安全提示和修复建议**。
 
 ### 🎯 解决的痛点
 
@@ -112,7 +112,7 @@ User findUser(String username);
 gradlew.bat buildPlugin
 
 # 插件生成位置
-build\distributions\SecurityScan-1.0-SNAPSHOT.zip
+build\distributions\SecureWatch-1.0-SNAPSHOT.zip
 ```
 
 ### 运行测试
@@ -130,7 +130,7 @@ gradlew.bat runIde
 1. 打开 IDEA
 2. `File` → `Settings` → `Plugins`
 3. 点击 ⚙️ → `Install Plugin from Disk...`
-4. 选择 `build\distributions\SecurityScan-1.0-SNAPSHOT.zip`
+4. 选择 `build\distributions\SecureWatch-1.0-SNAPSHOT.zip`
 5. 重启 IDEA
 
 **方法 2：开发模式运行**
@@ -253,7 +253,7 @@ copy src\main\resources\examples\*.java <你的项目>\src\main\java\
 ### 项目结构
 
 ```
-SecurityScan/
+SecureWatch/
 ├── src/main/kotlin/com/scan/securityscan/
 │   ├── rules/                          # 规则层
 │   │   ├── SecurityRule.kt            # 规则接口
@@ -404,10 +404,10 @@ gradlew.bat verifyPlugin
 ```
 build/
 ├── distributions/
-│   └── SecurityScan-1.0-SNAPSHOT.zip  ← 插件安装包
+│   └── SecureWatch-1.0-SNAPSHOT.zip  ← 插件安装包
 ├── libs/
-│   └── SecurityScan-1.0-SNAPSHOT.jar  ← 编译后的 JAR
-└── idea-sandbox/                       ← 测试沙箱
+│   └── SecureWatch-1.0-SNAPSHOT.jar  ← 编译后的 JAR
+└── idea-sandbox/                      ← 测试沙箱
 ```
 
 ### JDK 配置
@@ -447,7 +447,7 @@ set JAVA_HOME=D:\jdk17
 本项目采用 Apache License 2.0 许可证。详见 [LICENSE](LICENSE) 文件。
 
 ```
-Copyright 2024 SecurityScan Team
+Copyright 2024 SecureWatch Team
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -466,7 +466,7 @@ limitations under the License.
 
 ## 📞 联系方式
 
-- **Email**: support@securityscan.com
+- **Email**: 1724188078@qq.com
 - **Issues**: [GitHub Issues](../../issues)
 - **文档**: [项目 Wiki](../../wiki)
 
@@ -495,7 +495,7 @@ limitations under the License.
 
 **让安全编码成为习惯，而不是事后补救 🛡️**
 
-Made with ❤️ by SecurityScan Team
+Made with ❤️ by pengfei-t
 
 如果这个项目对你有帮助，请给个 Star ⭐️
 
