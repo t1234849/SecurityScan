@@ -69,14 +69,13 @@ User findUser(String username);
 User findUser(String username);
 ```
 
-#### 2. 推荐 Hutool 工具库 🛠️
+#### 2. Hutool 工具库 🛠️
 
-针对国内常用的 Hutool 工具库提供专门的安全建议：
+针对国内常用的 Hutool 工具库，可以规避检测：
 
-- **路径遍历** → 推荐使用 `FileUtil.file()`
-- **SSRF** → 推荐使用 `URLUtil.url()`
-- **资源管理** → 推荐使用 `IoUtil.close()`
-
+- **路径遍历** → 使用 `FileUtil.file()`规避检查
+- **SSRF** → 使用 `URLUtil.url()`规避检查
+- 
 #### 3. 详细的安全提示 📚
 
 每个问题都提供：
