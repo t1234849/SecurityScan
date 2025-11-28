@@ -1,0 +1,352 @@
+# 代码安全扫描规则配置文件
+# 
+# 说明：这是一个规则配置示例，展示了未来可以如何通过配置文件管理规则
+# 当前版本的规则是硬编码在代码中的，未来可以扩展为支持配置文件
+#
+# 配置化的好处：
+# 1. 无需修改代码即可添加/修改规则
+# 2. 不同项目可以使用不同的规则配置
+# 3. 便于团队共享和版本管理
+# 4. 支持规则的动态启用/禁用
+
+version: "1.0"
+author: "SecurityScan Team"
+last_updated: "2024-11-28"
+
+# 全局配置
+global:
+  # 是否启用所有规则
+  enabled: true
+  
+  # 默认风险级别
+  default_severity: WARNING
+  
+  # 是否在检测到问题时发送通知
+  notify_on_detection: false
+
+# 规则定义
+rules:
+  
+  # ==========================================
+  # 1. Fastjson 反序列化漏洞
+  # ==========================================
+  - id: FASTJSON_DESERIALIZATION
+    name: Fastjson反序列化漏洞
+    category: 反序列化
+    severity: CRITICAL
+    enabled: true
+    
+    description: |
+      使用Fastjson反序列化可能导致远程代码执行（RCE）。
+      Fastjson 的 AutoType 功能允许攻击者通过 @type 字段指定类名，
+      从而实例化恶意类，执行任意代码。
+    
+    # 匹配条件
+    matches:
+      - type: method_call
+        class: com.alibaba.fastjson.JSON
+        methods:
+          - parseObject
+          - parse
+          - parseArray
+      
+      - type: method_call
+        class: com.alibaba.fastjson2.JSON
+        methods:
+          - parseObject
+          - parse
+    
+    # 额外检查
+    additional_checks:
+      - name: check_autotype
+        description: 检查是否启用了 AutoType
+        pattern: "Feature.SupportAutoType"
+        severity_increase: HIGH
+    
+    # 修复建议
+    remediation:
+      description: |
+        1. 【强烈推荐】替换为安全的 JSON 库：Jackson 或 Gson
+        2. 如果必须使用 Fastjson，请升级到最新版本并禁用 AutoType
+        3. 使用白名单模式，只允许反序列化特定的类
+      
+      quick_fixes:
+        - name: 替换为 Jackson
+          template: "new com.fasterxml.jackson.databind.ObjectMapper().readValue($arg1, $arg2)"
+          
+        - name: 替换为 Gson
+          template: "new com.google.gson.Gson().fromJson($arg1, $arg2)"
+    
+    # 参考资料
+    references:
+      - https://github.com/alibaba/fastjson/wiki/security_update_20170315
+      - https://www.owasp.org/index.php/Deserialization_of_untrusted_data
+    
+    # 适用标准
+    standards:
+      - 奇安信代码审计
+      - 等保2.0
+      - OWASP Top 10 2021 - A08
+  
+  # ==========================================
+  # 2. SQL 注入漏洞
+  # ==========================================
+  - id: SQL_INJECTION
+    name: SQL注入漏洞
+    category: 注入攻击
+    severity: CRITICAL
+    enabled: true
+    
+    description: |
+      使用字符串拼接构造SQL语句可能导致SQL注入攻击。
+      攻击者可以通过精心构造的输入来改变SQL语句的语义。
+    
+    matches:
+      # 检查字符串拼接中是否包含 SQL 关键字
+      - type: string_concatenation
+        contains_keywords:
+          - SELECT
+          - INSERT
+          - UPDATE
+          - DELETE
+          - DROP
+          - CREATE
+          - WHERE
+          - FROM
+      
+      # 检查 JDBC 方法调用
+      - type: method_call
+        class: java.sql.Statement
+        methods:
+          - executeQuery
+          - execute
+          - executeUpdate
+        argument_check: not_literal
+    
+    remediation:
+      description: |
+        1. 【强烈推荐】使用 PreparedStatement 参数化查询
+        2. 使用 ORM 框架（MyBatis、Hibernate）的参数绑定功能
+        3. 对用户输入进行严格的白名单验证
+      
+      quick_fixes:
+        - name: 转换为 PreparedStatement
+          description: 将 Statement 替换为 PreparedStatement
+    
+    standards:
+      - 奇安信代码审计
+      - 等保2.0
+      - OWASP Top 10 2021 - A03
+  
+  # ==========================================
+  # 3. Java 原生反序列化漏洞
+  # ==========================================
+  - id: JAVA_DESERIALIZATION
+    name: Java原生反序列化漏洞
+    category: 反序列化
+    severity: CRITICAL
+    enabled: true
+    
+    description: |
+      使用 ObjectInputStream 反序列化不受信任的数据可能导致远程代码执行。
+      攻击者可以构造恶意的序列化数据，利用 gadget chain 执行任意代码。
+    
+    matches:
+      - type: method_call
+        class: java.io.ObjectInputStream
+        methods:
+          - readObject
+          - readUnshared
+      
+      - type: method_call
+        class: java.beans.XMLDecoder
+        methods:
+          - readObject
+    
+    remediation:
+      description: |
+        1. 【最佳方案】避免反序列化不受信任的数据，使用 JSON
+        2. 【如果必须使用】添加反序列化过滤器（JDK 9+）
+        3. 重写 resolveClass 方法实现白名单校验
+    
+    standards:
+      - 奇安信代码审计
+      - 等保2.0
+      - OWASP Top 10 2021 - A08
+    
+    cve_references:
+      - CVE-2015-4852  # WebLogic
+      - CVE-2017-12149 # JBoss
+  
+  # ==========================================
+  # 4. 命令注入漏洞
+  # ==========================================
+  - id: COMMAND_INJECTION
+    name: 命令注入漏洞
+    category: 注入攻击
+    severity: CRITICAL
+    enabled: true
+    
+    description: |
+      执行包含外部输入的系统命令可能导致命令注入攻击。
+      攻击者可以通过特殊字符（; | & 等）注入额外的命令。
+    
+    matches:
+      - type: method_call
+        class: java.lang.Runtime
+        methods:
+          - exec
+        argument_check: string_concatenation
+      
+      - type: new_expression
+        class: java.lang.ProcessBuilder
+        argument_check: string_concatenation
+    
+    remediation:
+      description: |
+        1. 【最佳方案】避免执行外部命令，使用 Java API
+        2. 【如果必须执行】使用参数数组形式
+        3. 对输入进行严格的白名单校验
+    
+    standards:
+      - 奇安信代码审计
+      - 等保2.0
+      - OWASP Top 10 2021 - A03
+  
+  # ==========================================
+  # 5. 路径遍历漏洞
+  # ==========================================
+  - id: PATH_TRAVERSAL
+    name: 路径遍历漏洞
+    category: 访问控制
+    severity: WARNING
+    enabled: true
+    
+    description: |
+      直接使用外部输入创建文件路径可能导致路径遍历攻击。
+      攻击者可以通过 ../ 等特殊字符访问系统中的任意文件。
+    
+    matches:
+      - type: new_expression
+        class: java.io.File
+        argument_check: not_literal
+      
+      - type: method_call
+        class: java.nio.file.Paths
+        methods:
+          - get
+        argument_check: not_literal
+      
+      - type: method_call
+        class: java.nio.file.Path
+        methods:
+          - of
+        argument_check: not_literal
+    
+    remediation:
+      description: |
+        1. 使用 FileUtil.file() 等安全工具类创建文件对象
+        2. 对文件路径进行规范化处理，防止 ../ 等路径穿越
+        3. 限制文件访问在特定目录范围内
+      
+      quick_fixes:
+        - name: 使用 FileUtil.file() 替代
+          template: "cn.hutool.core.io.FileUtil.file($args)"
+    
+    standards:
+      - 奇安信代码审计
+      - 等保2.0
+      - OWASP Top 10 2021 - A01
+  
+  # ==========================================
+  # 6. SSRF（服务端请求伪造）
+  # ==========================================
+  - id: SSRF_URL_CREATION
+    name: 不安全的URL创建
+    category: SSRF
+    severity: WARNING
+    enabled: true
+    
+    description: |
+      直接使用外部输入创建URL可能导致SSRF攻击。
+      攻击者可能访问内网资源或发起其他攻击。
+    
+    matches:
+      - type: new_expression
+        class: java.net.URL
+        argument_check: not_literal
+    
+    remediation:
+      description: |
+        1. 对URL进行白名单校验，只允许访问特定的域名或IP
+        2. 禁止使用file://、gopher://等危险协议
+        3. 使用安全的URL解析库，并进行协议、域名检查
+    
+    standards:
+      - 奇安信代码审计
+      - 等保2.0
+      - OWASP Top 10 2021 - A10
+
+# ==========================================
+# 未来可扩展的规则（示例）
+# ==========================================
+future_rules:
+  
+  # XXE（XML 外部实体注入）
+  - id: XXE_VULNERABILITY
+    name: XML外部实体注入
+    enabled: false
+    
+  # 不安全的加密
+  - id: WEAK_CRYPTOGRAPHY
+    name: 弱加密算法
+    enabled: false
+    
+  # 硬编码密码
+  - id: HARDCODED_PASSWORD
+    name: 硬编码密码
+    enabled: false
+    
+  # 敏感信息泄露
+  - id: SENSITIVE_INFO_LEAK
+    name: 敏感信息泄露
+    enabled: false
+    
+  # 不安全的随机数
+  - id: INSECURE_RANDOM
+    name: 不安全的随机数
+    enabled: false
+    
+  # CSRF 防护缺失
+  - id: CSRF_MISSING
+    name: CSRF防护缺失
+    enabled: false
+
+# ==========================================
+# 自定义配置（用户可以覆盖）
+# ==========================================
+custom:
+  # 项目特定的白名单
+  whitelists:
+    # 可信的类（不检查）
+    trusted_classes:
+      - com.yourcompany.SafeClass
+      - com.yourcompany.internal.*
+    
+    # 可信的方法
+    trusted_methods:
+      - com.yourcompany.SafeUtils.safeDeserialize
+    
+  # 忽略特定的文件或目录
+  exclude_paths:
+    - "src/test/**"
+    - "src/main/java/com/example/legacy/**"
+  
+  # 自定义严重级别映射
+  severity_mapping:
+    CRITICAL: ERROR
+    HIGH: ERROR
+    MEDIUM: WARNING
+    LOW: WEAK_WARNING
+    INFO: INFORMATION
+

@@ -1,0 +1,171 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.scan.SecurityScan</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Security Scan - 代码安全扫描助手</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="1724188078@qq.com" url="https://www.securityscan.com">pengfei-t</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+    <h2>代码安全扫描助手</h2>
+    <p>专为国内安全审计需求设计的 IDEA 插件，在编码阶段实时发现并提示安全隐患。</p>
+    
+    <h3>✨ 核心特性</h3>
+    <ul>
+        <li><strong>🔍 实时安全扫描</strong>：编码时后台自动检测，立即标记问题（黄色波浪线）</li>
+        <li><strong>💡 详细安全提示</strong>：鼠标悬停显示风险说明、攻击示例、修复建议</li>
+        <li><strong>🛠️ 实用建议</strong>：推荐 Hutool 等国内常用工具库</li>
+        <li><strong>✅ 符合国内标准</strong>：满足奇安信、等保测评等审计要求</li>
+    </ul>
+    
+    <h3>🔥 安全检测（9种规则）</h3>
+    <ul>
+        <li><strong>Fastjson 反序列化</strong>（高危）- 检测 JSON.parseObject、AutoType 等危险用法</li>
+        <li><strong>SQL 注入</strong>（高危）- 检测字符串拼接 SQL、MyBatis ${} 用法</li>
+        <li><strong>Java 原生反序列化</strong>（高危）- 检测 ObjectInputStream.readObject()</li>
+        <li><strong>命令注入</strong>（高危）- 检测 Runtime.exec() 字符串拼接</li>
+        <li><strong>路径遍历</strong> - 检测 new File()、Paths.get() 外部输入</li>
+        <li><strong>SSRF 攻击</strong> - 检测 new URL() 外部输入</li>
+    </ul>
+    
+    <h3>📊 代码质量检测</h3>
+    <ul>
+        <li><strong>资源未正确释放</strong> - 检测 InputStream 等资源泄漏，禁止使用 closeQuietly()</li>
+        <li><strong>系统信息泄露</strong> - 检测 return e.getMessage() 暴露内部信息</li>
+        <li><strong>不安全的随机数</strong> - 检测 new Random() 用于密码、令牌等安全场景</li>
+    </ul>
+    
+    <h3>🎯 特色功能</h3>
+    <ul>
+        <li>✅ MyBatis 注解中 ${} 和 #{} 的区分检测</li>
+        <li>✅ 推荐使用 Hutool（FileUtil、URLUtil、IoUtil）</li>
+        <li>✅ 智能识别常量、try-with-resources、业务异常</li>
+        <li>✅ 详细的攻击示例和修复方案</li>
+    </ul>
+    
+    <h3>📚 适用场景</h3>
+    <ul>
+        <li>奇安信代码审计准备</li>
+        <li>等保 2.0 测评前自查</li>
+        <li>日常开发安全规范</li>
+        <li>代码安全培训</li>
+        <li>团队代码质量提升</li>
+    </ul>
+    
+    <h3>🔧 使用方法</h3>
+    <p>安装插件后，编写代码时会自动检测安全问题，显示黄色提示底色。将鼠标悬停在波浪线上即可查看详细的安全提示和修复建议。</p>
+    
+    <h3>📖 兼容性</h3>
+    <p>支持 IntelliJ IDEA 2022.2 - 2024.3 所有版本。</p>
+  ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        
+        <!-- 安全检查 Inspections -->
+        
+        <!-- 1. Fastjson 反序列化漏洞检测 -->
+        <localInspection 
+            language="JAVA"
+            shortName="FastjsonDeserialization"
+            displayName="Fastjson反序列化漏洞（高危）"
+            groupName="Security"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.scan.securityscan.inspections.FastjsonDeserializationInspection"/>
+        
+        <!-- 2. SQL 注入漏洞检测 -->
+        <localInspection 
+            language="JAVA"
+            shortName="SqlInjection"
+            displayName="SQL注入漏洞检测（高危）"
+            groupName="Security"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.scan.securityscan.inspections.SqlInjectionInspection"/>
+        
+        <!-- 3. 路径遍历风险检测 -->
+        <localInspection 
+            language="JAVA"
+            shortName="PathTraversal"
+            displayName="路径遍历风险检测"
+            groupName="Security"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.scan.securityscan.inspections.PathTraversalInspection"/>
+        
+        <!-- 4. 不安全的 URL 创建检测 -->
+        <localInspection 
+            language="JAVA"
+            shortName="UnsafeUrlCreation"
+            displayName="不安全的URL创建（SSRF风险）"
+            groupName="Security"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.scan.securityscan.inspections.UnsafeUrlCreationInspection"/>
+        
+        <!-- 5. Java 原生反序列化漏洞检测 -->
+        <localInspection 
+            language="JAVA"
+            shortName="JavaDeserialization"
+            displayName="Java原生反序列化漏洞（高危）"
+            groupName="Security"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.scan.securityscan.inspections.JavaDeserializationInspection"/>
+        
+        <!-- 6. 命令注入漏洞检测 -->
+        <localInspection 
+            language="JAVA"
+            shortName="CommandInjection"
+            displayName="命令注入漏洞检测（高危）"
+            groupName="Security"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.scan.securityscan.inspections.CommandInjectionInspection"/>
+        
+        <!-- 7. 资源未正确释放检测 -->
+        <localInspection 
+            language="JAVA"
+            shortName="ResourceLeak"
+            displayName="资源未正确释放检测"
+            groupName="Security"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.scan.securityscan.inspections.ResourceLeakInspection"/>
+        
+        <!-- 8. 系统信息泄露检测 -->
+        <localInspection 
+            language="JAVA"
+            shortName="InformationLeak"
+            displayName="系统信息泄露检测（代码质量）"
+            groupName="Security"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.scan.securityscan.inspections.InformationLeakInspection"/>
+        
+        <!-- 9. 不安全的随机数检测 -->
+        <localInspection 
+            language="JAVA"
+            shortName="InsecureRandom"
+            displayName="不安全的随机数（密码管理）"
+            groupName="Security"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.scan.securityscan.inspections.InsecureRandomInspection"/>
+        
+    </extensions>
+</idea-plugin>
